@@ -8,7 +8,7 @@ public class BotState
     public decimal? ReferencePrice { get; set; }     
     public bool HasOpenPosition { get; set; }         
     public decimal? AverageEntryPrice { get; set; }        
-    public PositionType? CurrentPositionType { get; set; } // Long или Short
+    public PositionType? CurrentPositionType { get; set; }
     
     // Статистика
     public int TotalTrades { get; set; }
@@ -26,14 +26,13 @@ public class BotState
         CurrentPositionType = null;
     }
     
-    public void RecordTrade(PositionType type, decimal price, decimal profit = 0)
+    public void RecordTrade(PositionType type, decimal price)
     {
         HasOpenPosition = true;
         CurrentPositionType = type;
         AverageEntryPrice = price;
         ReferencePrice = price;
         TotalTrades++;
-        TotalProfit += profit;
     }
     
     public void ClosePosition(decimal exitPrice, decimal profit)
