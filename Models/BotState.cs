@@ -1,28 +1,55 @@
 namespace BybitBot.Models;
 
 /// <summary>
-/// Конфигурация торгового бота
+/// Текущее состояние бота
 /// </summary>
-public class BotConfig
+public class BotState
 {
-    public string Symbol { get; set; } = "ETHUSDT";
-    public int PriceChangeThreshold { get; set; } = 100;
-    public decimal TradeQuantity { get; set; } = 0.01m;
-    public int UpdateIntervalMs { get; set; } = 2000; 
+    public decimal? ReferencePrice { get; set; }     
+    public bool HasOpenPosition { get; set; }         
+    public decimal? AverageEntryPrice { get; set; }        
+    public PositionType? CurrentPositionType { get; set; } // Long или Short
     
-    // Для стоп-лосса и тейк-профита (опционально)
-    public decimal? StopLossPercent { get; set; } = null;
-    public decimal? TakeProfitPercent { get; set; } = null;
+    // Статистика
+    public int TotalTrades { get; set; }
+    public decimal TotalProfit { get; set; }
     
-    public static BotConfig Default => new BotConfig();
+    // Для отладки
+    public DateTime LastUpdateTime { get; set; }
+    public decimal LastPrice { get; set; }
     
-    public void Validate()
+    public void Reset()
     {
-        if (TradeQuantity <= 0)
-            throw new ArgumentException("TradeQuantity must be positive");
-        if (PriceChangeThreshold <= 0)
-            throw new ArgumentException("PriceChangeThreshold must be positive");
-        if (UpdateIntervalMs < 500)
-            throw new ArgumentException("UpdateIntervalMs must be at least 500ms");
+        ReferencePrice = null;
+        HasOpenPosition = false;
+        AverageEntryPrice = null;
+        CurrentPositionType = null;
     }
+    
+    public void RecordTrade(PositionType type, decimal price, decimal profit = 0)
+    {
+        HasOpenPosition = true;
+        CurrentPositionType = type;
+        AverageEntryPrice = price;
+        ReferencePrice = price;
+        TotalTrades++;
+        TotalProfit += profit;
+    }
+    
+    public void ClosePosition(decimal exitPrice, decimal profit)
+    {
+        HasOpenPosition = false;
+        CurrentPositionType = null;
+        ReferencePrice = exitPrice;
+        TotalProfit += profit;
+    }
+}
+
+/// <summary>
+/// Тип позиции
+/// </summary>
+public enum PositionType
+{
+    Long,   
+    Short  
 }
