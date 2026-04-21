@@ -1,0 +1,15 @@
+# .env файл с секретами
+.env
+.env.*
+!.env.example
+
+# Docker
+docker-compose.override.yml
+
+# Логи
+logs/
+*.log
+
+# Build artifacts
+bin/
+obj/
