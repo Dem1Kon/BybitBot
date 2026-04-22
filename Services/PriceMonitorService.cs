@@ -39,8 +39,6 @@ public class PriceMonitorService(IBybitClient client, BotConfig config) : IPrice
     
     public event Action<decimal>? OnPriceUpdate;
     public event Action<string>? OnError;
-    
-    // Правильный конструктор с телом
 
     
     public async Task StartAsync()
@@ -62,7 +60,6 @@ public class PriceMonitorService(IBybitClient client, BotConfig config) : IPrice
         // Сразу получаем первую цену
         await FetchPrice();
     }
-    
     
     public async Task StopAsync()
     {
