@@ -1,4 +1,5 @@
-﻿using BybitBot.Models;
+﻿using System.Globalization;
+using BybitBot.Models;
 using BybitBot.Services;
 using BybitBot.Utils;
 
@@ -7,7 +8,7 @@ namespace BybitBot;
 class Program
 {
     private static IBybitClient? _client;
-    private static PriceMonitorService? _priceMonitor;
+    private static IPriceMonitorService? _priceMonitor;
     private static TradingStrategy? _strategy;
     private static BotState _state = new BotState();
     private static BotConfig _config = new BotConfig();
@@ -30,11 +31,6 @@ class Program
             ConsoleHelper.WriteInfo("Please set environment variables:");
             ConsoleHelper.WriteInfo("  BYBIT_API_KEY=your_testnet_api_key");
             ConsoleHelper.WriteInfo("  BYBIT_API_SECRET=your_testnet_api_secret");
-            ConsoleHelper.WriteInfo("");
-            ConsoleHelper.WriteInfo("Or run in PowerShell:");
-            ConsoleHelper.WriteInfo("  $env:BYBIT_API_KEY='your_key'");
-            ConsoleHelper.WriteInfo("  $env:BYBIT_API_SECRET='your_secret'");
-            ConsoleHelper.WriteInfo("  dotnet run");
             return;
         }
         
@@ -44,7 +40,7 @@ class Program
             ConsoleHelper.WriteInfo("Initializing services...");
             _client = new BybitClient(apiKey, apiSecret);
             _strategy = new TradingStrategy(_client, _config, _state);
-            _priceMonitor = new PriceMonitorService(_client, _config.Symbol);
+            _priceMonitor = new PriceMonitorService(_client, _config);
             
             // Настройка обработчиков событий
             SetupEventHandlers();
@@ -84,7 +80,10 @@ class Program
     {
         // Чтение настроек из переменных окружения (с значениями по умолчанию)
         _config.Symbol = Environment.GetEnvironmentVariable("TRADE_SYMBOL") ?? "ETHUSDT";
-        _config.TradeQuantity = decimal.Parse(Environment.GetEnvironmentVariable("TRADE_QUANTITY") ?? "0.01");
+        _config.TradeQuantity = decimal.Parse(
+            Environment.GetEnvironmentVariable("TRADE_QUANTITY") ?? "0.01", 
+            CultureInfo.InvariantCulture
+        );
         _config.PriceChangeThreshold = int.Parse(Environment.GetEnvironmentVariable("PRICE_THRESHOLD") ?? "100");
         _config.UpdateIntervalMs = int.Parse(Environment.GetEnvironmentVariable("UPDATE_INTERVAL_MS") ?? "2000");
         
@@ -116,6 +115,7 @@ class Program
         // Подписка на обновления цены
         _priceMonitor.OnPriceUpdate += async price => 
         {
+            Console.WriteLine($"Current Price: {price:F2}");
             try
             {
                 await _strategy.ProcessPriceAsync(price);

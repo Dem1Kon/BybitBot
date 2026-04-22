@@ -25,11 +25,6 @@ public interface IBybitClient : IDisposable
     /// Получение баланса по монете
     /// </summary>
     Task<decimal?> GetBalanceAsync(string asset);
-    
-    /// <summary>
-    /// Подписка на обновления цены через WebSocket
-    /// </summary>
-    Task SubscribeToPriceUpdatesAsync(string symbol, Action<decimal> onPriceUpdate);
 }
 
 public class BybitClient : IBybitClient
@@ -47,7 +42,7 @@ public class BybitClient : IBybitClient
         _restClient = new BybitRestClient(options =>
         {
             options.ApiCredentials = credentials;
-            options.Environment = BybitEnvironment.Testnet;  // Важно для Testnet!
+            options.Environment = BybitEnvironment.Testnet;  
             options.AutoTimestamp = true;                    // Авто-синхронизация времени
         });
         
@@ -134,36 +129,6 @@ public class BybitClient : IBybitClient
         {
             Console.WriteLine($"[ERROR] Exception getting balance: {ex.Message}");
             return null;
-        }
-    }
-    
-    public async Task SubscribeToPriceUpdatesAsync(string symbol, Action<decimal> onPriceUpdate)
-    {
-        try
-        {
-            var subscriptionResult = await _socketClient.V5SpotApi.SubscribeToTickerUpdatesAsync(
-                symbol,
-                update =>
-                {
-                    if (update.Data != null)
-                    {
-                        onPriceUpdate?.Invoke(update.Data.LastPrice);
-                    }
-                }
-            );
-            
-            if (!subscriptionResult.Success)
-            {
-                Console.WriteLine($"[ERROR] WebSocket subscription failed: {subscriptionResult.Error?.Message}");
-            }
-            else
-            {
-                Console.WriteLine($"[INFO] Subscribed to price updates for {symbol}");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[ERROR] Exception in WebSocket subscription: {ex.Message}");
         }
     }
     

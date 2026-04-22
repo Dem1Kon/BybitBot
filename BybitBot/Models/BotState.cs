@@ -24,6 +24,7 @@ public class BotState
         HasOpenPosition = false;
         AverageEntryPrice = null;
         CurrentPositionType = null;
+        TotalTrades = 0;
     }
     
     public void RecordTrade(PositionType type, decimal price)

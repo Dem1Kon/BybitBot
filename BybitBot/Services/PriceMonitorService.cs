@@ -1,31 +1,46 @@
-using BybitBot.Models;
-
-namespace BybitBot.Services;
 using System.Timers;
+using BybitBot.Models;
 using Timer = System.Timers.Timer;
 
-public class PriceMonitorService(IBybitClient client, string symbol)
-    : IDisposable
+namespace BybitBot.Services;
+
+public interface IPriceMonitorService : IDisposable
 {
-    private readonly IBybitClient _client;
-    private readonly BotConfig _config;
-    private Timer? _timer;
-    private bool _isRunning;
-    private bool _disposed = false;
-    
     /// <summary>
     /// Событие при обновлении цены
     /// </summary>
-    public event Action<decimal>? OnPriceUpdate;
+    event Action<decimal> OnPriceUpdate;
     
     /// <summary>
     /// Событие при ошибке
     /// </summary>
-    public event Action<string>? OnError;
+    event Action<string> OnError;
     
     /// <summary>
     /// Запуск мониторинга цены
     /// </summary>
+    public Task StartAsync();
+    
+    /// <summary>
+    /// Остановка мониторинга цены
+    /// </summary>
+    public Task StopAsync();
+}
+
+
+public class PriceMonitorService(IBybitClient client, BotConfig config) : IPriceMonitorService
+{
+    private readonly IBybitClient _client = client ?? throw new ArgumentNullException(nameof(client));
+    private readonly BotConfig _config = config ?? throw new ArgumentNullException(nameof(config));
+    private Timer? _timer;
+    private bool _isRunning;
+    private bool _disposed = false;
+    
+    
+    public event Action<decimal>? OnPriceUpdate;
+    public event Action<string>? OnError;
+
+    
     public async Task StartAsync()
     {
         if (_isRunning)
@@ -46,9 +61,6 @@ public class PriceMonitorService(IBybitClient client, string symbol)
         await FetchPrice();
     }
     
-    /// <summary>
-    /// Остановка мониторинга цены
-    /// </summary>
     public async Task StopAsync()
     {
         if (!_isRunning)
