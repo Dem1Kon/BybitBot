@@ -1,15 +1,31 @@
-# .env файл с секретами
-.env
-.env.*
-!.env.example
-
-# Docker
-docker-compose.override.yml
-
-# Логи
-logs/
-*.log
-
 # Build artifacts
 bin/
 obj/
+Debug/
+Release/
+*.dll
+*.exe
+*.pdb
+*.cache
+*.tmp
+
+# Rider IDE
+.idea/
+*.DotSettings.user
+_ReSharper.Caches/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+
+# Test results
+TestResults/
+*.trx
+
+# Environment
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
