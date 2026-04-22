@@ -8,7 +8,7 @@ namespace BybitBot;
 class Program
 {
     private static IBybitClient? _client;
-    private static PriceMonitorService? _priceMonitor;
+    private static IPriceMonitorService? _priceMonitor;
     private static TradingStrategy? _strategy;
     private static BotState _state = new BotState();
     private static BotConfig _config = new BotConfig();
