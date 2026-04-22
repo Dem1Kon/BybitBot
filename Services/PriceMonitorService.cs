@@ -1,14 +1,16 @@
-using BybitBot.Models;
-
-namespace BybitBot.Services;
 using System.Timers;
+using BybitBot.Models;
 using Timer = System.Timers.Timer;
 
-public class PriceMonitorService(IBybitClient client, string symbol)
-    : IDisposable
+namespace BybitBot.Services;
+
+
+
+
+public class PriceMonitorService(IBybitClient client, BotConfig config) : IDisposable
 {
-    private readonly IBybitClient _client;
-    private readonly BotConfig _config;
+    private readonly IBybitClient _client = client ?? throw new ArgumentNullException(nameof(client));
+    private readonly BotConfig _config = config ?? throw new ArgumentNullException(nameof(config));
     private Timer? _timer;
     private bool _isRunning;
     private bool _disposed = false;
@@ -23,6 +25,8 @@ public class PriceMonitorService(IBybitClient client, string symbol)
     /// </summary>
     public event Action<string>? OnError;
     
+    // Правильный конструктор с телом
+
     /// <summary>
     /// Запуск мониторинга цены
     /// </summary>
